@@ -19,21 +19,13 @@ resource "azurerm_key_vault" "kv" {
   dynamic "network_acls" {
     for_each = var.network_acls
     content {
-      bypass        = network_acls.value.bypass
-      default_action = network_acls.value.default_action
-      ip_rules       = network_acls.value.ip_rules
+      bypass                     = network_acls.value.bypass
+      default_action             = network_acls.value.default_action
+      ip_rules                   = network_acls.value.ip_rules
       virtual_network_subnet_ids = network_acls.value.virtual_network_subnet_ids
     }
   }
 
-  # By default, Key Vault is only accessible via public endpoints unless 
-  # you set up firewall or private endpoints
-  # For advanced usage:
-  # network_acls {
-  #   bypass = "AzureServices"
-  #   default_action = "Deny"
-  #   ip_rules = ["x.x.x.x/32"]
-  # }
   tags = local.merged_tags
 }
 
@@ -51,9 +43,10 @@ resource "azurerm_key_vault_access_policy" "current_user" {
 }
 
 resource "azurerm_key_vault_access_policy" "secret_user" {
+  for_each     = { for id in var.service_principal_ids : id => id }
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = var.service_identity.principal_id
+  object_id    = each.value
 
   secret_permissions = [
     "Get",
@@ -63,7 +56,8 @@ resource "azurerm_key_vault_access_policy" "secret_user" {
 }
 
 resource "azurerm_role_assignment" "service" {
-  principal_id         = var.service_identity.principal_id
+  for_each             = { for id in var.service_principal_ids : id => id }
+  principal_id         = each.value
   scope                = azurerm_key_vault.kv
   role_definition_name = "Key Vault Secrets User"
 }

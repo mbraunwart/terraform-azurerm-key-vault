@@ -38,6 +38,12 @@ variable "network_acls" {
   default = []
 }
 
+variable "service_principal_ids" {
+  type = list(string)
+  default = []
+  description = "A list of service principal IDs to grant access to the Key Vault"
+}
+
 variable "tags" {
   description = "A mapping of tags to assign to the resources"
   type        = map(string)
