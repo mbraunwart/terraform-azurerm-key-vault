@@ -17,7 +17,7 @@ resource "azurerm_key_vault" "kv" {
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
   dynamic "network_acls" {
-    for_each = var.network_acls
+    for_each = var.network_acls != null && length(var.network_acls) > 0 ? var.network_acls : []
     content {
       bypass                     = network_acls.value.bypass
       default_action             = network_acls.value.default_action
@@ -43,7 +43,7 @@ resource "azurerm_key_vault_access_policy" "current_user" {
 }
 
 resource "azurerm_key_vault_access_policy" "secret_user" {
-  for_each     = { for id in var.service_principal_ids : id => id }
+  for_each     = var.service_principal_ids != null ? toset(var.service_principal_ids) : []
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = each.value
@@ -56,8 +56,8 @@ resource "azurerm_key_vault_access_policy" "secret_user" {
 }
 
 resource "azurerm_role_assignment" "service" {
-  for_each             = { for id in var.service_principal_ids : id => id }
+  for_each             = var.service_principal_ids != null ? toset(var.service_principal_ids) : []
   principal_id         = each.value
-  scope                = azurerm_key_vault.kv
+  scope                = azurerm_key_vault.kv.id
   role_definition_name = "Key Vault Secrets User"
 }
