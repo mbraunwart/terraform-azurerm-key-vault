@@ -27,3 +27,11 @@ output "tenant_id" {
   description = "The Azure AD tenant ID that should be used for authenticating requests to the Key Vault"
   value       = azurerm_key_vault.kv.tenant_id
 }
+
+output "secret_info" {
+  description = "The IDs of the secrets in the Key Vault"
+  value = { for secret in azurerm_key_vault_secret.kvs : secret.name => {
+    name = secret.name
+    id   = secret.id
+  } }
+}

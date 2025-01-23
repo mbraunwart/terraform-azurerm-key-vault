@@ -27,7 +27,7 @@ resource "azurerm_key_vault" "kv" {
       virtual_network_subnet_ids = network_acls.value.virtual_network_subnet_ids
     }
   }
-
+  
   tags = local.merged_tags
 }
 
