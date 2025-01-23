@@ -30,7 +30,7 @@ output "tenant_id" {
 
 output "secret_info" {
   description = "The IDs of the secrets in the Key Vault"
-  value = { for secret in azurerm_key_vault_secret.kvs : secret.name => {
+  value = { for secret in azurerm_key_vault_secret.s : secret.name => {
     name = secret.name
     id   = secret.id
   } }
