@@ -114,6 +114,12 @@ resource "azurerm_key_vault_access_policy" "secret_user" {
   ]
 }
 
+resource "azurerm_role_assignment" "current_client" {
+  scope                = azurerm_key_vault.kv.id
+  role_definition_name = "Key Vault Contributor"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
+
 resource "azurerm_role_assignment" "service" {
   for_each             = toset(local.filtered_sp_ids)
   principal_id         = each.value
