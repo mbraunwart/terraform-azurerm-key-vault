@@ -4,5 +4,5 @@ resource "azurerm_key_vault_secret" "s" {
   name         = replace(each.key, "_", "-")
   value        = each.value
 
-  depends_on = [ azurerm_role_assignment.current_client ]
+  depends_on = [ azurerm_role_assignment.current_client, azurerm_key_vault_access_policy.current_user ]
 }
