@@ -26,7 +26,7 @@ resource "azurerm_key_vault" "kv" {
       virtual_network_subnet_ids = network_acls.value.virtual_network_subnet_ids
     }
   }
-  
+
   tags = local.merged_tags
 }
 
@@ -101,7 +101,7 @@ resource "azurerm_key_vault_access_policy" "current_user" {
 }
 
 resource "azurerm_key_vault_access_policy" "secret_user" {
-  for_each     = var.service_principal_ids
+  for_each     = { for id in var.service_principal_ids : id => id }
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = each.value
@@ -120,7 +120,7 @@ resource "azurerm_role_assignment" "current_client" {
 }
 
 resource "azurerm_role_assignment" "service" {
-  for_each     = var.service_principal_ids
+  for_each             = { for id in var.service_principal_ids : id => id }
   principal_id         = each.value
   scope                = azurerm_key_vault.kv.id
   role_definition_name = "Key Vault Secrets User"
